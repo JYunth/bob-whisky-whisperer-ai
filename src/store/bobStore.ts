@@ -1,10 +1,9 @@
-
 import { create } from 'zustand';
 import { toast } from "sonner";
 import type { Bottle } from '@/types/bottle';
 import type { BobState, TasteProfile } from './types';
 
-const BAXUS_API_URL = 'http://services.baxus.co/api/bar/user';
+const BAXUS_API_URL = 'https://services.baxus.co/api/bar/user';
 
 const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
   // Count regions
@@ -92,13 +91,21 @@ export const useBobStore = create<BobState>((set, get) => ({
     set({ isLoading: true });
     
     try {
-      const response = await fetch(`${BAXUS_API_URL}/${username}`);
+      console.log(`Fetching data from: ${BAXUS_API_URL}/${username}`);
+      const response = await fetch(`${BAXUS_API_URL}/${username}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+      });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch collection data');
+        throw new Error(`Failed to fetch collection data: ${response.status} ${response.statusText}`);
       }
       
       const collection: Bottle[] = await response.json();
+      console.log('Collection data received:', collection);
       
       // Generate recommendations from the collection
       const recommendations = generateRecommendations(collection);
