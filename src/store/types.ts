@@ -20,6 +20,6 @@ export type BobState = {
   setUsername: (username: string) => void;
   setLoading: (loading: boolean) => void;
   fetchUserData: (username: string) => Promise<void>;
-  toggleWishlist: (bottleId: string) => void;
+  toggleWishlist: (bottleId: number) => void;
   getCollectionStats: () => TasteProfile;
 };

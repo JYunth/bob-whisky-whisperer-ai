@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 const Recommendations: React.FC = () => {
   const navigate = useNavigate();
-  const { username, recommendations } = useBobStore();
+  const { username, recommendations, wishlist } = useBobStore();
 
   useEffect(() => {
     // Redirect to home if no username
@@ -38,15 +38,8 @@ const Recommendations: React.FC = () => {
           {recommendations.map(bottle => (
             <BottleCard
               key={bottle.id}
-              id={bottle.id}
-              name={bottle.name}
-              distillery={bottle.distillery}
-              region={bottle.region}
-              age={bottle.age}
-              price={bottle.price}
-              image={bottle.image}
-              tags={bottle.tags}
-              inWishlist={bottle.inWishlist}
+              bottle={bottle}
+              inWishlist={wishlist.some(w => w.id === bottle.id)}
               rationale={bottle.rationale}
               showAlternatives={handleShowAlternatives}
             />

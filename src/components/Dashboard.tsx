@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { username, collection, tasteProfile } = useBobStore();
+  const { username, collection, wishlist } = useBobStore();
   
   useEffect(() => {
     // Redirect to home if no username
@@ -50,15 +50,8 @@ const Dashboard: React.FC = () => {
           {collection.map(bottle => (
             <BottleCard
               key={bottle.id}
-              id={bottle.id}
-              name={bottle.name}
-              distillery={bottle.distillery}
-              region={bottle.region}
-              age={bottle.age}
-              price={bottle.price}
-              image={bottle.image}
-              tags={bottle.tags}
-              inWishlist={bottle.inWishlist}
+              bottle={bottle}
+              inWishlist={wishlist.some(w => w.id === bottle.id)}
             />
           ))}
         </div>

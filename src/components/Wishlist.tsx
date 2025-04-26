@@ -33,15 +33,8 @@ const Wishlist: React.FC = () => {
           {wishlist.map(bottle => (
             <BottleCard
               key={bottle.id}
-              id={bottle.id}
-              name={bottle.name}
-              distillery={bottle.distillery}
-              region={bottle.region}
-              age={bottle.age}
-              price={bottle.price}
-              image={bottle.image}
-              tags={bottle.tags}
-              inWishlist={bottle.inWishlist}
+              bottle={bottle}
+              inWishlist={true}
             />
           ))}
         </div>
