@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,19 +36,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -88,14 +82,85 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-bob-bg-primary text-bob-text-primary;
+    font-family: "Helvetica Neue", sans-serif;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium;
+  }
+
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 18px; }
+
+  .body-large { font-size: 16px; }
+  .body-small { font-size: 14px; }
+  .caption { font-size: 12px; }
+}
+
+@layer components {
+  .bob-button-primary {
+    @apply bg-bob-accent-primary text-white font-medium py-3 px-4 rounded-bob-button 
+           transition-all duration-150 hover:bg-opacity-90 active:scale-[0.98];
+  }
+
+  .bob-button-secondary {
+    @apply border border-bob-accent-primary text-bob-accent-primary font-medium py-3 px-4 rounded-bob-button 
+           transition-all duration-150 hover:bg-bob-accent-primary hover:bg-opacity-5 active:scale-[0.98];
+  }
+
+  .bob-button-text {
+    @apply text-bob-accent-primary font-medium py-2 px-4 
+           transition-all duration-150 hover:bg-bob-accent-primary hover:bg-opacity-5 active:scale-[0.98];
+  }
+
+  .bob-input {
+    @apply border border-bob-border rounded-bob-button p-3 w-full focus:border-bob-accent-primary 
+           focus:outline-none placeholder:italic placeholder:text-gray-400;
+  }
+  
+  .bob-card {
+    @apply bg-white rounded-bob-card shadow-bob-card p-4 
+           transition-all duration-200 hover:border-bob-accent-primary;
+  }
+  
+  .bob-badge {
+    @apply rounded-full text-xs px-2 py-1 font-medium;
+  }
+  
+  .bob-badge-success {
+    @apply bg-bob-success text-white;
+  }
+  
+  .bob-badge-warning {
+    @apply bg-bob-warning text-white;
+  }
+  
+  .bob-badge-error {
+    @apply bg-bob-error text-white;
+  }
+
+  .bob-header {
+    @apply h-14 bg-white shadow-bob-topbar flex items-center justify-center px-6;
+  }
+
+  .bob-list-item {
+    @apply p-3 border-b border-bob-border flex items-center cursor-pointer 
+           hover:bg-bob-bg-secondary transition-colors duration-150;
+  }
+}
+
+@layer utilities {
+  .bob-spacing-small { margin: 8px; }
+  .bob-spacing-medium { margin: 16px; }
+  .bob-spacing-large { margin: 24px; }
+  .bob-spacing-xlarge { margin: 32px; }
+
+  .bob-padding-small { padding: 8px; }
+  .bob-padding-medium { padding: 16px; }
+  .bob-padding-large { padding: 24px; }
+  .bob-padding-xlarge { padding: 32px; }
 }

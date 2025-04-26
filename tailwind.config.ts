@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,12 +62,43 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Bob specific colors
+				bob: {
+					"bg-primary": "#FAFAF8",
+					"bg-secondary": "#EFEAE2",
+					"text-primary": "#121212",
+					"text-secondary": "#5C5C5C",
+					"accent-primary": "#C2A878",
+					"accent-secondary": "#B9A18D",
+					"border": "#DDDDDD",
+					"success": "#5EC6B4",
+					"warning": "#E2B659",
+					"error": "#E57373"
 				}
+			},
+			fontFamily: {
+				sans: ['"Helvetica Neue"', 'sans-serif'],
+				serif: ['Georgia', 'serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				"bob-card": '12px',
+				"bob-button": '8px',
+				"bob-tooltip": '6px',
+				"bob-modal": '16px',
+			},
+			boxShadow: {
+				'bob-card': '0 2px 8px rgba(0, 0, 0, 0.08)',
+				'bob-topbar': '0 2px 4px rgba(0, 0, 0, 0.05)',
+			},
+			spacing: {
+				'bob-small': '8px',
+				'bob-medium': '16px',
+				'bob-large': '24px',
+				'bob-xlarge': '32px',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -84,11 +116,21 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': { opacity: '0' },
+					'100%': { opacity: '1' }
+				},
+				'fade-through': {
+					'0%': { opacity: '0', transform: 'scale(0.95)' },
+					'100%': { opacity: '1', transform: 'scale(1)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.2s ease-out',
+				'fade-through': 'fade-through 0.2s ease-out'
 			}
 		}
 	},
