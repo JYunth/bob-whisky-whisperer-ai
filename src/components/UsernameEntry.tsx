@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useBobStore } from "@/store/bobStore";
+import { toast } from "sonner";
 
 const UsernameEntry: React.FC = () => {
   const [username, setUsername] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setUsername: storeUsername, fetchUserData } = useBobStore();
   const navigate = useNavigate();
 
@@ -14,11 +15,11 @@ const UsernameEntry: React.FC = () => {
     e.preventDefault();
     
     if (!username.trim()) {
-      setError("Please enter your BAXUS username");
+      toast.error("Please enter your BAXUS username");
       return;
     }
     
-    setError(null);
+    setIsSubmitting(true);
     storeUsername(username);
     
     try {
@@ -26,7 +27,7 @@ const UsernameEntry: React.FC = () => {
       navigate("/loading");
     } catch (err) {
       console.error("Error:", err);
-      setError("Could not process your request. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
@@ -52,15 +53,24 @@ const UsernameEntry: React.FC = () => {
                 className="bob-input"
                 placeholder="Your username"
               />
-              {error && <p className="mt-2 text-bob-error text-sm">{error}</p>}
             </div>
             
             <Button 
               type="submit" 
               className="bob-button-primary w-full flex items-center justify-center"
+              disabled={isSubmitting}
             >
-              <span className="mr-2">🔍</span>
-              Get My Recommendations
+              {isSubmitting ? (
+                <>
+                  <span className="mr-2 animate-spin">🔄</span>
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <span className="mr-2">🔍</span>
+                  Get My Recommendations
+                </>
+              )}
             </Button>
           </form>
           
@@ -68,6 +78,9 @@ const UsernameEntry: React.FC = () => {
             <p>
               Bob will analyze your virtual whisky collection and provide expert recommendations
               based on your existing preferences.
+            </p>
+            <p className="mt-4 text-xs">
+              Don't have a BAXUS account? Try with "demouser" for a sample collection.
             </p>
           </div>
         </div>
