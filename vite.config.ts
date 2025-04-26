@@ -8,6 +8,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/api': {
+        target: 'https://services.baxus.co',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'), // Keep /api prefix for target
+      },
+    },
   },
   plugins: [
     react(),

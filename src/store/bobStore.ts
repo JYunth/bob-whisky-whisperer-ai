@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import type { Bottle } from '@/types/bottle';
 import type { BobState, TasteProfile } from './types';
 
-const BAXUS_API_URL = 'https://services.baxus.co/api/bar/user';
+const BAXUS_API_URL = '/api/bar/user'; // Use proxied path
 
 // Mock data to use when API is unavailable
 const MOCK_BOTTLE_DATA: Bottle[] = [
