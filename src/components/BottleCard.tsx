@@ -20,7 +20,7 @@ const BottleCard: React.FC<BottleCardProps> = ({
   
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleWishlist(String(bottle.id));
+    toggleWishlist(bottle.id);
   };
 
   const priceDisplay = product.average_msrp ? 

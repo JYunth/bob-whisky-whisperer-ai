@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { useBobStore, TasteProfile } from "@/store/bobStore";
+import { useBobStore } from "@/store/bobStore";
+import { TasteProfile } from "@/store/types";
 import { Radar } from 'recharts';
 import { 
   ResponsiveContainer, 
