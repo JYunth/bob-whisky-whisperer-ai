@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import type { Bottle } from '@/types/bottle';
 import type { BobState, TasteProfile } from './types';
 
-const BAXUS_API_URL = '/api/bar/user'; // Use proxied path
+const BAXUS_API_URL = 'https://bob0.jyunth28.workers.dev'; // Use proxy worker URL
 
 // Mock data to use when API is unavailable
 const MOCK_BOTTLE_DATA: Bottle[] = [
