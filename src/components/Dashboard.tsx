@@ -19,6 +19,7 @@ const Dashboard: React.FC = () => {
     collection,
     wishlist,
     isLoading,
+    // fetchUserData, // Keep if initial load logic depends on it elsewhere
     activeRecommendationType,
     recommendationParams,
     generalRecommendations,
@@ -26,10 +27,27 @@ const Dashboard: React.FC = () => {
     similarProfileRecommendations,
     complementaryRecommendations,
     // fetchGeneralRecommendations, // Removed incorrect function
+    setActiveRecommendationType, // Import the new action
     fetchSimilarPriceRecommendations,
     fetchSimilarProfileRecommendations,
     fetchComplementaryRecommendations,
-  } = useBobStore();
+  } = useBobStore(state => ({ // Select necessary state and actions
+    username: state.username,
+    collection: state.collection,
+    wishlist: state.wishlist,
+    isLoading: state.isLoading,
+    activeRecommendationType: state.activeRecommendationType,
+    recommendationParams: state.recommendationParams,
+    generalRecommendations: state.generalRecommendations,
+    similarPriceRecommendations: state.similarPriceRecommendations,
+    similarProfileRecommendations: state.similarProfileRecommendations,
+    complementaryRecommendations: state.complementaryRecommendations,
+    setActiveRecommendationType: state.setActiveRecommendationType,
+    fetchSimilarPriceRecommendations: state.fetchSimilarPriceRecommendations,
+    fetchSimilarProfileRecommendations: state.fetchSimilarProfileRecommendations,
+    fetchComplementaryRecommendations: state.fetchComplementaryRecommendations,
+    // fetchUserData: state.fetchUserData, // Include if needed
+  }));
 
   // State for controls
   const [activeTab, setActiveTab] = useState<RecommendationType>('general');
@@ -37,9 +55,8 @@ const Dashboard: React.FC = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [focus, setFocus] = useState('');
 
-  // Handler to trigger fetches
-  // Handler to trigger fetches (ensure toast is available)
-  const handleFetchRecommendations = () => {
+  // Handler for the "Get Recommendations" button (refinement)
+  const handleRefineRecommendations = () => {
     if (!username) {
       toast.error("Username not found. Cannot fetch recommendations.");
       return;
@@ -47,10 +64,10 @@ const Dashboard: React.FC = () => {
 
     switch (activeTab) {
       case 'general':
-        // General recommendations are fetched initially.
-        // Clicking 'Get Recommendations' on General won't trigger a new fetch here.
-        // We rely on the initial load or other fetches setting the active type.
-        console.log("Displaying initial general recommendations.");
+        // General tab doesn't use the button for fetching, only tab switch.
+        // We could potentially re-trigger the initial fetch if needed, but
+        // for now, the button does nothing on the General tab.
+        toast.info("General recommendations are loaded automatically.");
         // If explicit activation is needed, a store action `setActiveRecommendationType` would be required.
         break;
       case 'similarPrice':
@@ -71,6 +88,35 @@ const Dashboard: React.FC = () => {
         break;
       default:
         console.warn("Unknown recommendation type selected:", activeTab);
+    }
+  };
+
+  // Handler for tab changes (automatic fetch with defaults)
+  const handleTabChange = (value: string) => {
+    const newTab = value as RecommendationType;
+    setActiveTab(newTab); // Update local state for UI controls
+
+    if (!username) {
+      // Don't show toast here, as it might be annoying on initial load/redirect
+      console.warn("Cannot fetch recommendations without a username.");
+      return;
+    }
+
+    // Trigger fetch/state update based on the new tab
+    switch (newTab) {
+      case 'general':
+        // Just set the active type, data is assumed to be fetched initially or available
+        setActiveRecommendationType('general');
+        break;
+      case 'similarPrice':
+        fetchSimilarPriceRecommendations(username); // Fetch with defaults
+        break;
+      case 'similarProfile':
+        fetchSimilarProfileRecommendations(username); // Fetch with defaults
+        break;
+      case 'complementary':
+        fetchComplementaryRecommendations(username);
+        break;
     }
   };
 
@@ -169,7 +215,7 @@ const Dashboard: React.FC = () => {
         {/* Recommendation Controls and Display */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Bob's Recommendations</h2>
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as RecommendationType)} className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-4">
               <TabsTrigger value="general">General</TabsTrigger>
               <TabsTrigger value="similarPrice">Similar Price</TabsTrigger>
@@ -177,34 +223,38 @@ const Dashboard: React.FC = () => {
               <TabsTrigger value="complementary">Complementary</TabsTrigger>
             </TabsList>
 
-            {/* Parameter Inputs - Conditionally Rendered (Logic to add) */}
-            <div className="flex items-end space-x-2 mb-4 p-4 border rounded-md bg-bob-card">
-              {activeTab === 'similarPrice' && (
-                <>
+            {/* Parameter Inputs - Conditionally Rendered */}
+            { (activeRecommendationType === 'similarPrice' || activeRecommendationType === 'similarProfile') && (
+              <div className="flex items-end space-x-2 mb-4 p-4 border rounded-md bg-bob-card">
+                {/* Use activeRecommendationType here for consistency, though activeTab mirrors it */}
+                {activeRecommendationType === 'similarPrice' && (
+                  <>
+                    <div className="flex-1">
+                      <Label htmlFor="minPrice">Min Price ($)</Label>
+                      <Input id="minPrice" type="number" placeholder="e.g., 50" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="bob-input" />
+                    </div>
+                    <div className="flex-1">
+                      <Label htmlFor="maxPrice">Max Price ($)</Label>
+                      <Input id="maxPrice" type="number" placeholder="e.g., 100" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="bob-input" />
+                    </div>
+                  </>
+                )}
+                {activeRecommendationType === 'similarProfile' && (
                   <div className="flex-1">
-                    <Label htmlFor="minPrice">Min Price ($)</Label>
-                    <Input id="minPrice" type="number" placeholder="e.g., 50" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="bob-input" />
+                    <Label htmlFor="focus">Taste Focus</Label>
+                    <Input id="focus" placeholder="e.g., Peaty, Fruity, Smooth" value={focus} onChange={(e) => setFocus(e.target.value)} className="bob-input" />
                   </div>
-                  <div className="flex-1">
-                    <Label htmlFor="maxPrice">Max Price ($)</Label>
-                    <Input id="maxPrice" type="number" placeholder="e.g., 100" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="bob-input" />
-                  </div>
-                </>
-              )}
-              {activeTab === 'similarProfile' && (
-                <div className="flex-1">
-                  <Label htmlFor="focus">Taste Focus</Label>
-                  <Input id="focus" placeholder="e.g., Peaty, Fruity, Smooth" value={focus} onChange={(e) => setFocus(e.target.value)} className="bob-input" />
-                </div>
-              )}
-              {(activeTab === 'general' || activeTab === 'complementary') && (
-                 <div className="flex-1 text-sm text-bob-text-secondary flex items-center">No parameters needed for this type.</div>
-              )}
-              {/* Disable button while loading */}
-              <Button onClick={handleFetchRecommendations} className="bob-button-primary" disabled={isLoading}>
-                {isLoading ? 'Fetching...' : 'Get Recommendations'}
-              </Button>
-            </div>
+                )}
+                {/* This part is now implicitly handled by the outer condition, but keep button logic */}
+                {/* {(activeTab === 'general' || activeTab === 'complementary') && (
+                   <div className="flex-1 text-sm text-bob-text-secondary flex items-center">No parameters needed for this type.</div>
+                )} */}
+                {/* Disable button while loading - Note: button is only shown when params are needed */}
+                <Button onClick={handleRefineRecommendations} className="bob-button-primary" disabled={isLoading}>
+                  {isLoading ? 'Fetching...' : 'Get Recommendations'}
+                </Button>
+              </div>
+            )}
 
             {/* Recommendation Display Area */}
             <div className="mt-4 min-h-[200px]"> {/* Added min-height */}

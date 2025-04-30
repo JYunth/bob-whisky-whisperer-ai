@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { toast } from "sonner";
 import type { Bottle } from '@/types/bottle';
 // Import RecommendationParams here
-import type { BobState, TasteProfile, RecommendationParams } from './types';
+import type { BobState, TasteProfile, RecommendationParams, RecommendationType } from './types'; // Import RecommendationType
 
 const BAXUS_API_URL = 'https://bob0.jyunth28.workers.dev'; // Use proxy worker URL
 const RECOMMENDATION_API_URL = 'http://localhost:3000/api'; // New API URL for recommendations
@@ -152,6 +152,9 @@ export const useBobStore = create<BobState>((set, get) => ({
   setUsername: (username) => set({ username }),
 
   setLoading: (loading) => set({ isLoading: loading }),
+
+  // Action to explicitly set the active recommendation type
+  setActiveRecommendationType: (type: RecommendationType) => set({ activeRecommendationType: type }),
 
   fetchUserData: async (username: string) => {
     set({ isLoading: true });

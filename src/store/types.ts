@@ -36,6 +36,7 @@ export type BobState = {
   // Actions
   setUsername: (username: string) => void;
   setLoading: (loading: boolean) => void;
+  setActiveRecommendationType: (type: RecommendationType) => void; // Add the new action signature
   fetchUserData: (username: string) => Promise<void>; // Fetches collection + general recommendations
   // New fetch actions
   fetchSimilarPriceRecommendations: (username: string, minPrice?: number, maxPrice?: number) => Promise<void>;

@@ -69,11 +69,13 @@ const BottleCard: React.FC<BottleCardProps> = ({
           </div>
           
           <div className="flex flex-wrap gap-2"> {/* Removed mt-2, handled by space-y-2 */}
-            <Badge variant="secondary">{source.spirit}</Badge> {/* Use Badge */}
+            {/* Price - made more prominent */}
+            <span className="text-lg font-semibold">{priceDisplay}</span>
             
-            <Badge variant="secondary">{priceDisplay}</Badge> {/* Use Badge */}
-            
-            <Badge variant="secondary">{source.proof}°</Badge> {/* Use Badge */}
+            {/* Proof - conditional rendering */}
+            {source.proof && (
+              <Badge variant="secondary">{source.proof}°</Badge>
+            )}
             
             {source.barrel_pick && ( // Access from determined source
               <Badge variant="outline" className="border-bob-accent-secondary/50 text-bob-text-secondary"> {/* Use Badge with outline */}
