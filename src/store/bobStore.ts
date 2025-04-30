@@ -1,12 +1,13 @@
-
 import { create } from 'zustand';
 import { toast } from "sonner";
 import type { Bottle } from '@/types/bottle';
-import type { BobState, TasteProfile } from './types';
+// Import RecommendationParams here
+import type { BobState, TasteProfile, RecommendationParams } from './types';
 
 const BAXUS_API_URL = 'https://bob0.jyunth28.workers.dev'; // Use proxy worker URL
+const RECOMMENDATION_API_URL = 'http://localhost:3000/api'; // New API URL for recommendations
 
-// Mock data to use when API is unavailable
+// Mock data (remains the same)
 const MOCK_BOTTLE_DATA: Bottle[] = [
   {
     id: 1,
@@ -88,6 +89,7 @@ const MOCK_BOTTLE_DATA: Bottle[] = [
   }
 ];
 
+// Helper functions (remain the same)
 const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
   // Count regions
   const regionCounts: Record<string, number> = {};
@@ -95,14 +97,14 @@ const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
     const spirit = bottle.product.spirit;
     regionCounts[spirit] = (regionCounts[spirit] || 0) + 1;
   });
-  
+
   const regions = Object.entries(regionCounts)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
-  
+
   // Calculate average price
   const avgPrice = collection.reduce((sum, bottle) => sum + (bottle.product.average_msrp || 0), 0) / collection.length;
-  
+
   // Calculate preferences based on proof ranges
   const proofs = collection.map(bottle => bottle.product.proof).filter(Boolean);
   const agePreference = {
@@ -110,18 +112,18 @@ const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
     max: Math.max(...proofs) || 0,
     avg: proofs.reduce((sum, proof) => sum + proof, 0) / proofs.length || 0
   };
-  
+
   // Count styles (using spirits as styles)
   const styleCounts: Record<string, number> = {};
   collection.forEach(bottle => {
     const spirit = bottle.product.spirit;
     styleCounts[spirit] = (styleCounts[spirit] || 0) + 1;
   });
-  
+
   const styles = Object.entries(styleCounts)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
-  
+
   return {
     regions,
     averagePrice: avgPrice,
@@ -130,139 +132,317 @@ const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
   };
 };
 
-const generateRecommendations = (collection: Bottle[]): (Bottle & { rationale: string })[] => {
-  if (!collection.length) return [];
-  
-  // Group bottles by spirit
-  const spiritGroups = collection.reduce((acc, bottle) => {
-    const spirit = bottle.product.spirit;
-    if (!acc[spirit]) acc[spirit] = [];
-    acc[spirit].push(bottle);
-    return acc;
-  }, {} as Record<string, Bottle[]>);
-  
-  // Get average price point
-  const avgPrice = collection.reduce((sum, b) => sum + (b.product.average_msrp || 0), 0) / collection.length;
-  
-  // Find most common spirits
-  const spiritCounts = Object.entries(spiritGroups)
-    .map(([spirit, bottles]) => ({ spirit, count: bottles.length }))
-    .sort((a, b) => b.count - a.count);
-  
-  const favoriteSpirit = spiritCounts[0]?.spirit || 'Whiskey';
-  
-  // Filter collection to find potential recommendations
-  return collection.slice(0, 5).map(bottle => ({
-    ...bottle,
-    rationale: `Based on your collection of ${favoriteSpirit}s with an average price of $${Math.round(avgPrice)}, this ${bottle.product.spirit} would be an excellent addition.`
-  }));
-};
+// generateRecommendations is unused now, can be removed or kept
 
 export const useBobStore = create<BobState>((set, get) => ({
+  // Initial State
   username: '',
   isLoading: false,
   collection: [],
-  recommendations: [],
+  generalRecommendations: [],
+  similarPriceRecommendations: [],
+  similarProfileRecommendations: [],
+  complementaryRecommendations: [],
+  activeRecommendationType: 'general',
+  recommendationParams: {},
   wishlist: [],
   tasteProfile: null,
-  
+
+  // Actions
   setUsername: (username) => set({ username }),
-  
+
   setLoading: (loading) => set({ isLoading: loading }),
-  
+
   fetchUserData: async (username: string) => {
     set({ isLoading: true });
-    
+    let collectionData: Bottle[] = [];
+    let generalRecommendationData: (Bottle & { rationale?: string })[] = [];
+    let tasteProfileData: TasteProfile | null = null;
+
     try {
-      console.log(`Fetching data from: ${BAXUS_API_URL}/${username}`);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      const response = await fetch(`${BAXUS_API_URL}/${username}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch collection data: ${response.status} ${response.statusText}`);
+      // 1. Fetch Collection Data
+      try {
+        console.log(`Fetching collection data from: ${BAXUS_API_URL}/${username}`);
+        const collectionResponse = await fetch(`${BAXUS_API_URL}/${username}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(10000)
+        });
+
+        if (!collectionResponse.ok) {
+          console.error(`Collection fetch failed: ${collectionResponse.status} ${collectionResponse.statusText}`);
+          throw new Error(`Failed to fetch collection: ${collectionResponse.status}`);
+        }
+        collectionData = await collectionResponse.json();
+        collectionData = collectionData || [];
+        console.log('Collection data received:', collectionData.length);
+
+      } catch (error) {
+        console.error('Error fetching collection data:', error);
+        toast.error('Failed to fetch your collection. Using sample data instead.');
+        collectionData = MOCK_BOTTLE_DATA;
       }
-      
-      const collection: Bottle[] = await response.json();
-      console.log('Collection data received:', collection);
-      
-      // Generate recommendations from the collection
-      const recommendations = generateRecommendations(collection);
-      
-      // Calculate taste profile
-      const tasteProfile = calculateTasteProfile(collection);
-      
+
+      // 2. Fetch General Recommendations
+      if (username) {
+          try {
+            console.log(`Fetching general recommendations from: ${RECOMMENDATION_API_URL}/user/${username}`);
+            const recommendationResponse = await fetch(`${RECOMMENDATION_API_URL}/user/${username}`, {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              signal: AbortSignal.timeout(10000)
+            });
+
+            if (!recommendationResponse.ok) {
+              console.error(`General Recommendation fetch failed: ${recommendationResponse.status} ${recommendationResponse.statusText}`);
+              throw new Error(`Failed to fetch general recommendations: ${recommendationResponse.status}`);
+            }
+            const recommendationResult = await recommendationResponse.json();
+            generalRecommendationData = recommendationResult.recommendations || [];
+            console.log('General Recommendations received:', generalRecommendationData.length);
+
+          } catch (error) {
+            console.error('Error fetching general recommendations:', error);
+            toast.error('Failed to fetch general recommendations from the server.');
+            generalRecommendationData = [];
+          }
+      } else {
+          console.log("No username provided, skipping general recommendation fetch.");
+          generalRecommendationData = [];
+      }
+
+      // 3. Calculate Taste Profile
+      if (collectionData && collectionData.length > 0) {
+          tasteProfileData = calculateTasteProfile(collectionData);
+      } else {
+          console.warn("No collection data available to calculate taste profile.");
+          tasteProfileData = null;
+      }
+
+      // 4. Update state
       set({
-        collection,
-        recommendations,
-        wishlist: [], // Reset wishlist when fetching new data
-        tasteProfile,
-        isLoading: false
-      });
-      
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      
-      // Use mock data as fallback
-      console.log('Using mock data as fallback');
-      const collection = MOCK_BOTTLE_DATA;
-      const recommendations = generateRecommendations(collection);
-      const tasteProfile = calculateTasteProfile(collection);
-      
-      set({
-        collection,
-        recommendations,
+        collection: collectionData,
+        generalRecommendations: generalRecommendationData,
+        tasteProfile: tasteProfileData,
         wishlist: [],
-        tasteProfile,
-        isLoading: false
+        activeRecommendationType: 'general',
+        recommendationParams: {},
+        similarPriceRecommendations: [],
+        similarProfileRecommendations: [],
+        complementaryRecommendations: [],
       });
-      
-      toast.info('Demo mode: Using sample data');
+
+    } catch (error) {
+        console.error('Unexpected error during user data fetch process:', error);
+        toast.error('An unexpected error occurred while loading your data.');
+        const fallbackCollection = MOCK_BOTTLE_DATA;
+        set({
+            collection: fallbackCollection,
+            generalRecommendations: [],
+            tasteProfile: calculateTasteProfile(fallbackCollection),
+            wishlist: [],
+            activeRecommendationType: 'general',
+            recommendationParams: {},
+            similarPriceRecommendations: [],
+            similarProfileRecommendations: [],
+            complementaryRecommendations: [],
+        });
+    } finally {
+      set({ isLoading: false });
     }
   },
-  
+
   toggleWishlist: (bottleId: number) => {
     set((state) => {
       const isInWishlist = state.wishlist.some(b => b.id === bottleId);
-      
-      // Find the bottle in either collection or recommendations
-      const bottle = 
+
+      const bottle =
         state.collection.find(b => b.id === bottleId) ||
-        state.recommendations.find(b => b.id === bottleId);
-      
+        state.generalRecommendations.find(b => b.id === bottleId) ||
+        state.similarPriceRecommendations.find(b => b.id === bottleId) ||
+        state.similarProfileRecommendations.find(b => b.id === bottleId) ||
+        state.complementaryRecommendations.find(b => b.id === bottleId);
+
       if (!bottle) {
         toast.error('Bottle not found');
         return state;
       }
-      
-      // Update wishlist
+
+      // Corrected logic placement
       const updatedWishlist = isInWishlist
         ? state.wishlist.filter(b => b.id !== bottleId)
         : [...state.wishlist, bottle];
-      
-      // Show appropriate toast
+
       if (isInWishlist) {
         toast.info('Removed from your wishlist');
       } else {
         toast.success('Added to your wishlist');
       }
-      
+
       return { wishlist: updatedWishlist };
     });
   },
-  
+
   getCollectionStats: () => {
     const { collection } = get();
+    if (!collection || collection.length === 0) {
+        return {
+            regions: [],
+            averagePrice: 0,
+            agePreference: { min: 0, max: 0, avg: 0 },
+            styles: []
+        };
+    }
     return calculateTasteProfile(collection);
-  }
-}));
+  },
+
+  // --- NEW FETCH FUNCTIONS (Correctly placed inside the object) ---
+  fetchSimilarPriceRecommendations: async (username: string, minPrice?: number, maxPrice?: number) => {
+    if (!username) {
+      toast.error("Username is required to fetch recommendations.");
+      return;
+    }
+    set({ isLoading: true });
+    const params = new URLSearchParams();
+    const currentParams: RecommendationParams = {};
+    if (minPrice !== undefined) {
+      params.append('min_price', String(minPrice));
+      currentParams.minPrice = minPrice;
+    }
+    if (maxPrice !== undefined) {
+      params.append('max_price', String(maxPrice));
+      currentParams.maxPrice = maxPrice;
+    }
+    const queryString = params.toString();
+    const url = `${RECOMMENDATION_API_URL}/user/${username}/similar-price${queryString ? `?${queryString}` : ''}`;
+
+    try {
+      console.log(`Fetching similar price recommendations from: ${url}`);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(10000)
+      });
+
+      if (!response.ok) {
+        console.error(`Similar Price Recommendation fetch failed: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to fetch similar price recommendations: ${response.status}`);
+      }
+      const result = await response.json();
+      const recommendations = result.recommendations || [];
+      console.log('Similar Price Recommendations received:', recommendations.length);
+      set({
+        similarPriceRecommendations: recommendations,
+        activeRecommendationType: 'similarPrice',
+        recommendationParams: currentParams,
+      });
+      toast.success(`Found ${recommendations.length} recommendations based on price.`);
+
+    } catch (error) {
+      console.error('Error fetching similar price recommendations:', error);
+      toast.error('Failed to fetch recommendations based on price.');
+      set({
+        similarPriceRecommendations: [],
+        activeRecommendationType: 'similarPrice',
+        recommendationParams: currentParams,
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchSimilarProfileRecommendations: async (username: string, focus?: string) => {
+    if (!username) {
+      toast.error("Username is required to fetch recommendations.");
+      return;
+    }
+    set({ isLoading: true });
+    const params = new URLSearchParams();
+    const currentParams: RecommendationParams = {};
+     if (focus) {
+      params.append('focus', focus);
+      currentParams.profileFocus = focus;
+    }
+    const queryString = params.toString();
+    const url = `${RECOMMENDATION_API_URL}/user/${username}/similar-profile${queryString ? `?${queryString}` : ''}`;
+
+    try {
+      console.log(`Fetching similar profile recommendations from: ${url}`);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(10000)
+      });
+
+      if (!response.ok) {
+        console.error(`Similar Profile Recommendation fetch failed: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to fetch similar profile recommendations: ${response.status}`);
+      }
+      const result = await response.json();
+      const recommendations = result.recommendations || [];
+      console.log('Similar Profile Recommendations received:', recommendations.length);
+      set({
+        similarProfileRecommendations: recommendations,
+        activeRecommendationType: 'similarProfile',
+        recommendationParams: currentParams,
+      });
+       toast.success(`Found ${recommendations.length} recommendations based on profile${focus ? ` (focus: ${focus})` : ''}.`);
+
+    } catch (error) {
+      console.error('Error fetching similar profile recommendations:', error);
+      toast.error('Failed to fetch recommendations based on profile.');
+      set({
+        similarProfileRecommendations: [],
+        activeRecommendationType: 'similarProfile',
+        recommendationParams: currentParams,
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchComplementaryRecommendations: async (username: string) => {
+    if (!username) {
+      toast.error("Username is required to fetch recommendations.");
+      return;
+    }
+    set({ isLoading: true });
+    const url = `${RECOMMENDATION_API_URL}/user/${username}/complementary`;
+    const currentParams: RecommendationParams = {};
+
+    try {
+      console.log(`Fetching complementary recommendations from: ${url}`);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(10000)
+      });
+
+      if (!response.ok) {
+        console.error(`Complementary Recommendation fetch failed: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to fetch complementary recommendations: ${response.status}`);
+      }
+      const result = await response.json();
+      const recommendations = result.recommendations || [];
+      console.log('Complementary Recommendations received:', recommendations.length);
+      set({
+        complementaryRecommendations: recommendations,
+        activeRecommendationType: 'complementary',
+        recommendationParams: currentParams,
+      });
+      toast.success(`Found ${recommendations.length} complementary recommendations.`);
+
+    } catch (error) {
+      console.error('Error fetching complementary recommendations:', error);
+      toast.error('Failed to fetch complementary recommendations.');
+      set({
+        complementaryRecommendations: [],
+        activeRecommendationType: 'complementary',
+        recommendationParams: currentParams,
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+})); // End of create<BobState>
