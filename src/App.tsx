@@ -8,8 +8,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import LoadingPage from "./components/LoadingPage";
 import Dashboard from "./components/Dashboard";
-import Recommendations from "./components/Recommendations";
-import Wishlist from "./components/Wishlist";
 
 const queryClient = new QueryClient();
 
@@ -23,8 +21,6 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/loading" element={<LoadingPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/recommendations" element={<Recommendations />} />
-          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -275,14 +275,14 @@ const Dashboard: React.FC = () => {
                   ))}
                 </div>
               ) : currentRecommendations.length > 0 ? (
-                // Recommendation List
-                <div className="space-y-6">
+                // Recommendation List - 4 columns on large screens, reduced gap
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"> {/* Changed to 4 columns, gap 3 */}
                   {currentRecommendations.map(bottle => (
                     <BottleCard
                       key={`${activeRecommendationType}-${bottle.id}`} // Ensure unique key across types
                       bottle={bottle}
-                      inWishlist={wishlist.some(w => w.id === bottle.id)}
-                      rationale={bottle.rationale}
+                      // inWishlist prop removed
+                      rationale={bottle.rationale} // Rationale prop uncommented
                       // showAlternatives={() => toast.info("Alternative feature coming soon!")} // Example if needed
                     />
                   ))}
@@ -306,13 +306,13 @@ const Dashboard: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Your Collection</h2>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"> {/* Adjusted grid for potentially more space */}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"> {/* Changed to 4 columns, gap 3 */}
           {collection.map(bottle => (
             <BottleCard
               key={bottle.id}
               bottle={bottle}
-              inWishlist={wishlist.some(w => w.id === bottle.id)}
+              // inWishlist prop removed
             />
           ))}
         </div>
