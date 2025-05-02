@@ -166,7 +166,7 @@ export const useBobStore = create<BobState>((set, get) => ({
       // 1. Fetch Collection Data
       try {
         console.log(`Fetching collection data from: ${BAXUS_API_URL}/${username}`);
-        const collectionResponse = await fetch(`${BAXUS_API_URL}/${username}`, {
+        const collectionResponse = await fetch(`http://localhost:3000/api/proxy/bar/${username}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           signal: AbortSignal.timeout(10000)
@@ -445,6 +445,50 @@ export const useBobStore = create<BobState>((set, get) => ({
       });
     } finally {
       set({ isLoading: false });
+    }
+  },
+fetchWishlist: async (username: string) => {
+    if (!username) {
+      toast.error("Username is required to fetch wishlist.");
+      return;
+    }
+    // Don't set loading here, let fetchUserData handle overall loading
+    // set({ isLoading: true }); 
+    const url = `http://localhost:3000/api/proxy/wishlist/${username}`;
+
+    try {
+      console.log(`Fetching wishlist from: ${url}`);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
+
+      if (!response.ok) {
+        console.error(`Wishlist fetch failed: ${response.status} ${response.statusText}`);
+        // Handle 404 specifically - user might not have a wishlist yet
+        if (response.status === 404) {
+            console.log(`No wishlist found for user ${username}. Setting wishlist to empty array.`);
+            set({ wishlist: [] });
+            // No toast needed for 404, it's not an error state
+        } else {
+            throw new Error(`Failed to fetch wishlist: ${response.status}`);
+        }
+      } else {
+        const wishlistData: Bottle[] = await response.json();
+        console.log('Wishlist data received:', wishlistData.length);
+        set({ wishlist: wishlistData || [] }); // Ensure it's an array
+        // Optional: Toast on success, maybe too noisy?
+        // toast.success(`Successfully fetched ${wishlistData.length} wishlist items.`);
+      }
+
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      // Avoid overwriting wishlist with empty on generic error
+      toast.error('Failed to fetch your wishlist.');
+    } finally {
+      // Don't set loading here either
+      // set({ isLoading: false });
     }
   },
 

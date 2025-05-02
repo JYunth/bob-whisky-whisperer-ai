@@ -31,6 +31,7 @@ const Dashboard: React.FC = () => {
     fetchSimilarPriceRecommendations,
     fetchSimilarProfileRecommendations,
     fetchComplementaryRecommendations,
+    fetchWishlist, // Add fetchWishlist action
   } = useBobStore(state => ({ // Select necessary state and actions
     username: state.username,
     collection: state.collection,
@@ -46,6 +47,7 @@ const Dashboard: React.FC = () => {
     fetchSimilarPriceRecommendations: state.fetchSimilarPriceRecommendations,
     fetchSimilarProfileRecommendations: state.fetchSimilarProfileRecommendations,
     fetchComplementaryRecommendations: state.fetchComplementaryRecommendations,
+    fetchWishlist: state.fetchWishlist, // Add fetchWishlist action
     // fetchUserData: state.fetchUserData, // Include if needed
   }));
 
@@ -193,6 +195,13 @@ const Dashboard: React.FC = () => {
     // }
   }, [username, navigate]); // Removed generalRecommendations, isLoading, fetchUserData dependencies for now
 
+  // Fetch wishlist when username is available
+  useEffect(() => {
+    if (username) {
+      fetchWishlist(username);
+    }
+  }, [username, fetchWishlist]);
+
 
   return (
     <div className="min-h-screen bg-bob-bg-primary">
@@ -320,6 +329,23 @@ const Dashboard: React.FC = () => {
         {collection.length === 0 && (
           <div className="text-center py-12">
             <p className="text-bob-text-secondary">No bottles in your collection yet.</p>
+          </div>
+        )}
+
+        {/* Wishlist Section */}
+        <h2 className="text-2xl font-bold mt-8 mb-6">Your Wishlist</h2>
+        {wishlist.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {wishlist.map(bottle => (
+              <BottleCard
+                key={`wishlist-${bottle.id}`} // Unique key for wishlist items
+                bottle={bottle}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-bob-text-secondary">Your wishlist is empty.</p>
           </div>
         )}
       </div>

@@ -42,6 +42,7 @@ export type BobState = {
   fetchSimilarPriceRecommendations: (username: string, minPrice?: number, maxPrice?: number) => Promise<void>;
   fetchSimilarProfileRecommendations: (username: string, focus?: string) => Promise<void>;
   fetchComplementaryRecommendations: (username: string) => Promise<void>;
+fetchWishlist: (username: string) => Promise<void>; // Add wishlist fetch action signature
   toggleWishlist: (bottleId: number) => void;
   getCollectionStats: () => TasteProfile;
 };
