@@ -290,6 +290,7 @@ const Dashboard: React.FC = () => {
                     <BottleCard
                       key={`${activeRecommendationType}-${bottle.id}`} // Ensure unique key across types
                       bottle={bottle}
+                      context='recommendation' // Add context prop
                       // inWishlist prop removed
                       rationale={bottle.rationale} // Rationale prop uncommented
                       // showAlternatives={() => toast.info("Alternative feature coming soon!")} // Example if needed
@@ -316,17 +317,18 @@ const Dashboard: React.FC = () => {
           <h2 className="text-2xl font-bold">Your Collection</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"> {/* Changed to 4 columns, gap 3 */}
-          {collection.map(bottle => (
-            <BottleCard
-              key={bottle.id}
-              bottle={bottle}
-              // inWishlist prop removed
-            />
-          ))}
-        </div>
-        
-        {collection.length === 0 && (
+        {Array.isArray(collection) && collection.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"> {/* Changed to 4 columns, gap 3 */}
+            {collection.map(bottle => (
+              <BottleCard
+                key={bottle.id}
+                bottle={bottle}
+                context='bar' // Add context prop
+                // inWishlist prop removed
+              />
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-12">
             <p className="text-bob-text-secondary">No bottles in your collection yet.</p>
           </div>
@@ -334,17 +336,19 @@ const Dashboard: React.FC = () => {
 
         {/* Wishlist Section */}
         <h2 className="text-2xl font-bold mt-8 mb-6">Your Wishlist</h2>
-        {wishlist.length > 0 ? (
+        {Array.isArray(wishlist) && wishlist.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {wishlist.map(bottle => (
+            {wishlist.map(bottle => ( // Already checked Array.isArray above
               <BottleCard
                 key={`wishlist-${bottle.id}`} // Unique key for wishlist items
                 bottle={bottle}
+                context='wishlist' // Add context prop
               />
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
+            {/* Update condition to handle non-array case */}
             <p className="text-bob-text-secondary">Your wishlist is empty.</p>
           </div>
         )}

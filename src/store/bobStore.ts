@@ -10,82 +10,96 @@ const RECOMMENDATION_API_URL = 'http://localhost:3000/api'; // New API URL for r
 // Mock data (remains the same)
 const MOCK_BOTTLE_DATA: Bottle[] = [
   {
-    id: 1,
-    bar_id: 101,
-    fill_percentage: 100,
-    note: null,
-    created_at: "2025-01-15T12:00:00Z",
-    updated_at: "2025-01-15T12:00:00Z",
-    added: "2025-01-15T12:00:00Z",
-    user: { user_name: "demo_user" },
-    product: {
-      id: 201,
-      name: "Lagavulin 16",
-      image_url: "https://images.whiskybase.com/whiskies/21816.jpg",
-      brand_id: 301,
-      brand: "Lagavulin",
-      spirit: "Scotch",
-      size: "750ml",
-      proof: 86,
-      average_msrp: 89.99,
-      fair_price: 85.99,
-      shelf_price: 95.99,
-      popularity: 92,
-      barrel_pick: false,
-      verified_date: "2024-12-01T00:00:00Z",
-    }
+    id: 519,
+    name: "Pappy Van Winkle 23 Year Family Reserve",
+    size: "750",
+    proof: 95.6,
+    abv: 47.8,
+    spirit_type: "Bourbon",
+    brand_id: 370,
+    popularity: 100046,
+    image_url: "https://d1w35me0y6a2bb.cloudfront.net/newproducts/reccmI7Umn58SrhlY",
+    avg_msrp: 321.64,
+    fair_price: 958.61,
+    shelf_price: 4899.97,
+    total_score: 5689,
+    wishlist_count: 2453,
+    vote_count: 2982,
+    bar_count: 254,
+    ranking: 64,
+    brand: "Old Rip Van Winkle Distillery",
+    description: "An exceptionally rare and sought-after bourbon with rich oak, caramel, and vanilla notes.",
+    msrp: 300,
+    spirit_profile: { Sweet: 4, Floral: 2, Woody: 5, Spicy: 3, Smoky: 1, Fruity: 4, Smooth: 5 }
   },
   {
-    id: 2,
-    bar_id: 102,
-    fill_percentage: 75,
-    note: "Favorite bourbon",
-    created_at: "2025-02-20T14:30:00Z",
-    updated_at: "2025-02-20T14:30:00Z",
-    added: "2025-02-20T14:30:00Z",
-    user: { user_name: "demo_user" },
-    product: {
-      id: 202,
-      name: "Buffalo Trace",
-      image_url: "https://www.buffalotracedistillery.com/content/dam/buffalotrace/products/Buffalo-Trace-Product-Bottle.png",
-      brand_id: 302,
-      brand: "Buffalo Trace",
-      spirit: "Bourbon",
-      size: "750ml",
-      proof: 90,
-      average_msrp: 29.99,
-      fair_price: 25.99,
-      shelf_price: 35.99,
-      popularity: 88,
-      barrel_pick: false,
-      verified_date: "2024-12-02T00:00:00Z",
-    }
+    id: 13266,
+    name: "Heaven Hill Bottled In Bond 7 Year",
+    size: "750",
+    proof: 100,
+    abv: 50,
+    spirit_type: "Bourbon",
+    brand_id: 430,
+    popularity: 100144,
+    image_url: "https://d1w35me0y6a2bb.cloudfront.net/newproducts/recSJfTSxTvljLvF8",
+    avg_msrp: 47.74,
+    fair_price: 62.34,
+    shelf_price: 84.99,
+    total_score: 18850,
+    wishlist_count: 1948,
+    vote_count: 5366,
+    bar_count: 11536,
+    ranking: 12,
+    brand: "Heaven Hill",
+    description: "A balanced and classic bonded bourbon with notes of caramel, oak, and vanilla.",
+    msrp: 39.99,
+    spirit_profile: { Sweet: 4, Floral: 1, Woody: 3, Spicy: 3, Smoky: 1, Fruity: 2, Smooth: 4 }
   },
   {
-    id: 3,
-    bar_id: 103,
-    fill_percentage: 90,
-    note: "Special occasion",
-    created_at: "2025-03-10T09:15:00Z",
-    updated_at: "2025-03-10T09:15:00Z",
-    added: "2025-03-10T09:15:00Z",
-    user: { user_name: "demo_user" },
-    product: {
-      id: 203,
-      name: "Hibiki Harmony",
-      image_url: "https://www.suntory.com/products/hibiki/img/sp/harmony/img_bottle.png",
-      brand_id: 303,
-      brand: "Suntory",
-      spirit: "Japanese Whisky",
-      size: "750ml",
-      proof: 86,
-      average_msrp: 89.99,
-      fair_price: 85.99,
-      shelf_price: 110.99,
-      popularity: 95,
-      barrel_pick: false,
-      verified_date: "2024-12-03T00:00:00Z",
-    }
+    id: 2848,
+    name: "Eagle Rare 10 Year",
+    size: "750",
+    proof: 90,
+    abv: 45,
+    spirit_type: "Bourbon",
+    brand_id: 542,
+    popularity: 100519,
+    image_url: "https://d1w35me0y6a2bb.cloudfront.net/newproducts/ecce066b-6b3d-4b58-bd04-8bf9c67e3e92",
+    avg_msrp: 39.99,
+    fair_price: 66.25,
+    shelf_price: 49.99,
+    total_score: 82217,
+    wishlist_count: 8744,
+    vote_count: 25989,
+    bar_count: 47484,
+    ranking: 2,
+    brand: "Buffalo Trace",
+    description: "A well-balanced bourbon with notes of caramel, vanilla, and oak.",
+    msrp: 35,
+    spirit_profile: { Sweet: 4, Floral: 2, Woody: 4, Spicy: 3, Smoky: 1, Fruity: 3, Smooth: 5 }
+  },
+  {
+    id: 1522,
+    name: "Russell's Reserve 10 Year",
+    size: "750",
+    proof: 90,
+    abv: 45,
+    spirit_type: "Bourbon",
+    brand_id: 191,
+    popularity: 100122,
+    image_url: "https://d1w35me0y6a2bb.cloudfront.net/newproducts/7dc9a32b-a17e-4f97-9fed-55a1590dc01e",
+    avg_msrp: 45.99,
+    fair_price: 56.99,
+    shelf_price: 48.74,
+    total_score: 12391,
+    wishlist_count: 1368,
+    vote_count: 3192,
+    bar_count: 7831,
+    ranking: 21,
+    brand: "Russell's Reserve",
+    description: "A well-balanced bourbon with notes of oak, vanilla, and spice.",
+    msrp: 49.99,
+    spirit_profile: { Sweet: 3, Floral: 1, Woody: 4, Spicy: 3, Smoky: 1, Fruity: 3, Smooth: 4 }
   }
 ];
 
@@ -94,7 +108,7 @@ const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
   // Count regions
   const regionCounts: Record<string, number> = {};
   collection.forEach(bottle => {
-    const spirit = bottle.product.spirit;
+    const spirit = bottle.spirit_type; // Access directly from bottle
     regionCounts[spirit] = (regionCounts[spirit] || 0) + 1;
   });
 
@@ -103,10 +117,10 @@ const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
     .sort((a, b) => b.value - a.value);
 
   // Calculate average price
-  const avgPrice = collection.reduce((sum, bottle) => sum + (bottle.product.average_msrp || 0), 0) / collection.length;
+  const avgPrice = collection.reduce((sum, bottle) => sum + (bottle.avg_msrp || 0), 0) / collection.length; // Use avg_msrp directly
 
   // Calculate preferences based on proof ranges
-  const proofs = collection.map(bottle => bottle.product.proof).filter(Boolean);
+  const proofs = collection.map(bottle => bottle.proof).filter(Boolean); // Access proof directly
   const agePreference = {
     min: Math.min(...proofs) || 0,
     max: Math.max(...proofs) || 0,
@@ -116,7 +130,7 @@ const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
   // Count styles (using spirits as styles)
   const styleCounts: Record<string, number> = {};
   collection.forEach(bottle => {
-    const spirit = bottle.product.spirit;
+    const spirit = bottle.spirit_type; // Access directly from bottle
     styleCounts[spirit] = (styleCounts[spirit] || 0) + 1;
   });
 
@@ -176,9 +190,9 @@ export const useBobStore = create<BobState>((set, get) => ({
           console.error(`Collection fetch failed: ${collectionResponse.status} ${collectionResponse.statusText}`);
           throw new Error(`Failed to fetch collection: ${collectionResponse.status}`);
         }
-        collectionData = await collectionResponse.json();
-        collectionData = collectionData || [];
-        console.log('Collection data received:', collectionData.length);
+        const collectionResult = await collectionResponse.json(); // Get the full response object
+        collectionData = collectionResult.recommendations || []; // Extract the recommendations array
+        console.log('Collection data received:', collectionData); // Log the actual data
 
       } catch (error) {
         console.error('Error fetching collection data:', error);
@@ -475,9 +489,10 @@ fetchWishlist: async (username: string) => {
             throw new Error(`Failed to fetch wishlist: ${response.status}`);
         }
       } else {
-        const wishlistData: Bottle[] = await response.json();
-        console.log('Wishlist data received:', wishlistData.length);
-        set({ wishlist: wishlistData || [] }); // Ensure it's an array
+        const result = await response.json(); // Get the full response object
+        const wishlistData: Bottle[] = result.recommendations || []; // Extract the recommendations array
+        console.log('Wishlist data received:', wishlistData); // Log the actual data for better debugging
+        set({ wishlist: wishlistData }); // Set the extracted array
         // Optional: Toast on success, maybe too noisy?
         // toast.success(`Successfully fetched ${wishlistData.length} wishlist items.`);
       }

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 // Star import removed
 // Badge import removed
 // useBobStore import removed
-// cn import removed
+import { cn } from "@/lib/utils"; // Re-import cn
 import type { Bottle } from '@/types/bottle';
 import {
   Card,
@@ -11,31 +11,34 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
+import BottleDetailModal from './BottleDetailModal'; // Import the modal
 
 
 type BottleCardProps = {
   bottle: Bottle;
+  context: 'recommendation' | 'bar' | 'wishlist'; // Add context prop
   // inWishlist removed as per new design
   rationale?: string;
   // showAlternatives removed as per new design
 };
 
 const BottleCard: React.FC<BottleCardProps> = ({
-  bottle, rationale
+  bottle, rationale, context // Destructure context
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
   // Wishlist logic removed as per new design
 
   // Determine the correct source for properties based on data structure
   // Simplified assumption: data is directly on bottle or bottle.product
-  const name = bottle.product?.name ?? (bottle as any).name ?? 'Unknown Name';
-  const imageUrl = bottle.product?.image_url ?? (bottle as any).image_url ?? '/placeholder.svg';
-  const spirit = bottle.product?.spirit ?? (bottle as any).spirit ?? ''; // Use spirit instead of category
-  const size = bottle.product?.size ?? (bottle as any).size; // Use size instead of volumeMl
-  const proof = bottle.product?.proof ?? (bottle as any).proof; // e.g., 95
+  const name = bottle.name ?? 'Unknown Name';
+  const imageUrl = bottle.image_url ?? '/placeholder.svg';
+  const spirit = bottle.spirit_type ?? ''; // Use spirit_type from Bottle type
+  const size = bottle.size; // Use size directly from Bottle type
+  const proof = bottle.proof; // Use proof directly from Bottle type
 
   // Determine the price: prioritize fair_price, then avg_msrp from product or root
-  const priceValue = (bottle as any).fair_price ?? bottle.product?.average_msrp ?? (bottle as any).avg_msrp;
+  const priceValue = bottle.fair_price ?? bottle.avg_msrp; // Use fair_price and avg_msrp from Bottle type
   const priceDisplay = priceValue != null ? // Check for null or undefined
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
       .format(priceValue) : 'Price Unavailable'; // Display fallback text
@@ -48,7 +51,18 @@ const BottleCard: React.FC<BottleCardProps> = ({
   ].filter(Boolean).join(' | '); // Filter out null/undefined/empty values and join
 
   return (
-    <Card className="w-full overflow-hidden bg-[#FBF9F5] border border-gray-200/80 rounded-xl shadow-sm flex flex-col font-sans"> {/* Removed max-w-[300px] */}
+    <> {/* Fragment to hold Card and Modal */}
+      <Card
+        className={cn(
+          "w-full overflow-hidden bg-[#FBF9F5] border border-gray-200/80 rounded-xl shadow-sm flex flex-col font-sans",
+          context === 'recommendation' && "cursor-pointer" // Conditional cursor
+        )}
+        onClick={() => {
+          if (context === 'recommendation') { // Conditional modal open
+            setIsModalOpen(true);
+          }
+        }}
+      > {/* Removed max-w-[300px] */}
       <div className="p-6 flex justify-center items-center bg-white h-64"> {/* Image container with padding, white bg, fixed height */}
         <img
           src={imageUrl}
@@ -78,7 +92,14 @@ const BottleCard: React.FC<BottleCardProps> = ({
         {/* Wishlist button removed */}
         {/* showAlternatives button removed */}
       </div>
-    </Card>
+      </Card>
+      {/* Conditionally render the modal */}
+      <BottleDetailModal
+        bottle={bottle}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   );
 };
 
