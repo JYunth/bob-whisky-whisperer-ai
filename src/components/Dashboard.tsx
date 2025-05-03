@@ -32,6 +32,8 @@ const Dashboard: React.FC = () => {
     fetchSimilarProfileRecommendations,
     fetchComplementaryRecommendations,
     fetchWishlist, // Add fetchWishlist action
+    userTasteProfile, // Select the new taste profile state
+    tasteProfile, // Select the original stats profile state
   } = useBobStore(state => ({ // Select necessary state and actions
     username: state.username,
     collection: state.collection,
@@ -48,6 +50,8 @@ const Dashboard: React.FC = () => {
     fetchSimilarProfileRecommendations: state.fetchSimilarProfileRecommendations,
     fetchComplementaryRecommendations: state.fetchComplementaryRecommendations,
     fetchWishlist: state.fetchWishlist, // Add fetchWishlist action
+    userTasteProfile: state.userTasteProfile, // Select the new state
+    tasteProfile: state.tasteProfile, // Select the original state
     // fetchUserData: state.fetchUserData, // Include if needed
   }));
 
@@ -218,7 +222,8 @@ const Dashboard: React.FC = () => {
         </div>
         
         <div className="mb-8">
-          <TasteProfileCard />
+          {/* Pass both profiles to the card */}
+          <TasteProfileCard spiritProfile={userTasteProfile} statsProfile={tasteProfile} />
         </div>
 
         {/* Recommendation Controls and Display */}

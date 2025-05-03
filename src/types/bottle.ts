@@ -22,7 +22,7 @@ export interface Product {
 }
 
 // Define the nested type for spirit profile
-interface SpiritProfile {
+export interface SpiritProfile { // Add export keyword
   Sweet: number;
   Floral: number;
   Woody: number;

@@ -1,5 +1,5 @@
 
-import type { Bottle } from '@/types/bottle';
+import type { Bottle, SpiritProfile } from '@/types/bottle'; // Import SpiritProfile
 
 export type TasteProfile = {
   regions: {name: string, value: number}[];
@@ -31,7 +31,8 @@ export type BobState = {
   recommendationParams: RecommendationParams;
 
   wishlist: Bottle[];
-  tasteProfile: TasteProfile | null;
+  tasteProfile: TasteProfile | null; // Existing aggregate profile
+  userTasteProfile: SpiritProfile | null; // New profile based on spirit_profile
 
   // Actions
   setUsername: (username: string) => void;
@@ -45,4 +46,5 @@ export type BobState = {
 fetchWishlist: (username: string) => Promise<void>; // Add wishlist fetch action signature
   toggleWishlist: (bottleId: number) => void;
   getCollectionStats: () => TasteProfile;
+  calculateAndUpdateTasteProfile: () => void; // Add action signature
 };

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { toast } from "sonner";
-import type { Bottle } from '@/types/bottle';
+import type { Bottle, SpiritProfile } from '@/types/bottle'; // Import SpiritProfile
 // Import RecommendationParams here
 import type { BobState, TasteProfile, RecommendationParams, RecommendationType } from './types'; // Import RecommendationType
 
@@ -103,6 +103,33 @@ const MOCK_BOTTLE_DATA: Bottle[] = [
   }
 ];
 
+// Relevant spirit types for profile calculation
+const RELEVANT_SPIRIT_TYPES = [
+  "Bourbon",
+  "Scotch",
+  "Rye",
+  "Whisky", // Generic Whisky
+  "Irish Whiskey",
+  "Japanese Whisky",
+  "Canadian Whisky",
+  "Single Malt", // Often used for Scotch
+  "Blended Scotch",
+  "Tennessee Whiskey",
+  // Add others if necessary based on expected data
+];
+
+// Default empty profile
+const DEFAULT_SPIRIT_PROFILE: SpiritProfile = {
+  Sweet: 0,
+  Floral: 0,
+  Woody: 0,
+  Spicy: 0,
+  Smoky: 0,
+  Fruity: 0,
+  Smooth: 0,
+};
+
+
 // Helper functions (remain the same)
 const calculateTasteProfile = (collection: Bottle[]): TasteProfile => {
   // Count regions
@@ -161,6 +188,7 @@ export const useBobStore = create<BobState>((set, get) => ({
   recommendationParams: {},
   wishlist: [],
   tasteProfile: null,
+  userTasteProfile: null, // Add new state property
 
   // Actions
   setUsername: (username) => set({ username }),
@@ -248,6 +276,14 @@ export const useBobStore = create<BobState>((set, get) => ({
         similarProfileRecommendations: [],
         complementaryRecommendations: [],
       });
+
+      // 5. Calculate User Taste Profile (after setting collection)
+      get().calculateAndUpdateTasteProfile(); // Call the new action
+
+      // 6. Fetch Wishlist (after setting collection)
+      if (username) {
+        get().fetchWishlist(username); // Call fetchWishlist here
+      }
 
     } catch (error) {
         console.error('Unexpected error during user data fetch process:', error);
@@ -505,6 +541,36 @@ fetchWishlist: async (username: string) => {
       // Don't set loading here either
       // set({ isLoading: false });
     }
+  },
+
+  calculateAndUpdateTasteProfile: () => {
+    const { collection } = get();
+    const filteredCollection = collection.filter(bottle =>
+      bottle.spirit_type && RELEVANT_SPIRIT_TYPES.includes(bottle.spirit_type) && bottle.spirit_profile
+    );
+
+    if (filteredCollection.length === 0) {
+      set({ userTasteProfile: DEFAULT_SPIRIT_PROFILE }); // Set to default if no relevant bottles
+      return;
+    }
+
+    const profileSum: SpiritProfile = { ...DEFAULT_SPIRIT_PROFILE };
+
+    filteredCollection.forEach(bottle => {
+      if (bottle.spirit_profile) {
+        (Object.keys(profileSum) as Array<keyof SpiritProfile>).forEach(key => {
+          profileSum[key] += bottle.spirit_profile[key] || 0;
+        });
+      }
+    });
+
+    const count = filteredCollection.length;
+    const averageProfile: SpiritProfile = { ...DEFAULT_SPIRIT_PROFILE };
+    (Object.keys(averageProfile) as Array<keyof SpiritProfile>).forEach(key => {
+      averageProfile[key] = profileSum[key] / count;
+    });
+
+    set({ userTasteProfile: averageProfile });
   },
 
 })); // End of create<BobState>
